@@ -1,0 +1,72 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Mono Auto Generated Files
+mono_crash.*
+
+## VS Code
+.vscode/
+
+## Visual Studio
+.vs/
+*.dbmdl
+*.VC.db
+*.VC.VC.opendb
+
+## Entity Framework
+Migrations/*.Designer.cs
+Migrations/*.resx
+Migrations/SqliteHistory/
+*.bak
+
+## Rider IDE
+.idea/
+
+## ASP.NET
+appsettings.*.json
+appsettings.Local.json
+
+## Logs
+*.log
+
+## OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Icon?
+desktop.ini
+
+## Package Management
+*.nupkg
+packages/
+*.snupkg
+
+## Test Results
+TestResults/
+*.coverage
+*.coveragexml
+
+## Publish
+publish/
+*.publish.xml
+
+## Compiled DLLs
+*.dll
+*.exe
+*.pdb
+
+## Others
+_ReSharper*/
+*.cache
+*.tgz
+*.tmp
+*.lock.json
