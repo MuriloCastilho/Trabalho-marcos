@@ -150,6 +150,32 @@ namespace WebApplication2.Controllers
             return Ok(_mapper.Map<IEnumerable<ReadMedicamentoDto>>(medicamentos));
         }
 
+        [HttpGet("principios-ativos-unicos")]
+        public async Task<ActionResult<IEnumerable<string>>> GetPrincipiosAtivosUnicos()
+        {
+            var principiosAtivos = await _context.Medicamentos
+                .Select(m => m.PrincipioAtivo.ToUpper())
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(principiosAtivos);
+        }
+
+        [HttpGet("filtrar-por-principio")]
+        public async Task<ActionResult<IEnumerable<string>>> FiltrarMedicamentosPorPrincipio([FromQuery] string principioAtivo)
+        {
+            if (string.IsNullOrWhiteSpace(principioAtivo))
+                return BadRequest("O parâmetro 'principioAtivo' é obrigatório.");
+
+            var medicamentos = await _context.Medicamentos
+                .Where(m => m.PrincipioAtivo.ToUpper() == principioAtivo.ToUpper())
+                .Select(m => m.Nome)
+                .ToListAsync();
+
+            return Ok(medicamentos);
+        }
+
+
         private bool MedicamentoExists(long id)
         {
             return _context.Medicamentos.Any(m => m.Id == id);
