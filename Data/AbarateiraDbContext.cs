@@ -25,12 +25,6 @@ namespace WebApplication2.Data
             modelBuilder.Entity<Medicamento>()
                 .HasAlternateKey(m => m.PrincipioAtivo);
 
-            modelBuilder.Entity<Desconto>()
-                .HasOne(d => d.Medicamento)
-                .WithOne(m => m.Desconto)
-                .HasForeignKey<Desconto>(d => d.PrincipioAtivo)
-                .HasPrincipalKey<Medicamento>(m => m.PrincipioAtivo);
-
             // Configuração para evitar cascata na tabela HistoricoVenda
             modelBuilder.Entity<HistoricoVenda>()
                 .HasOne(hv => hv.Venda)

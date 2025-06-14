@@ -74,7 +74,7 @@ namespace WebApplication4.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PrincipioAtivo")
+                    b.HasIndex("MedicamentoId")
                         .IsUnique();
 
                     b.ToTable("Descontos");
@@ -275,6 +275,8 @@ namespace WebApplication4.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasAlternateKey("PrincipioAtivo");
+
                     b.HasIndex("EstoqueId");
 
                     b.HasIndex("IndustriaId");
@@ -309,8 +311,7 @@ namespace WebApplication4.Migrations
                 {
                     b.HasOne("WebApplication2.Entities.Medicamento", "Medicamento")
                         .WithOne("Desconto")
-                        .HasForeignKey("Desconto", "PrincipioAtivo")
-                        .HasPrincipalKey("WebApplication2.Entities.Medicamento", "PrincipioAtivo")
+                        .HasForeignKey("Desconto", "MedicamentoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

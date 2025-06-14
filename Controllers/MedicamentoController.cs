@@ -24,7 +24,6 @@ namespace WebApplication2.Controllers
         public async Task<ActionResult<IEnumerable<ReadMedicamentoDto>>> GetMedicamentos()
         {
             var medicamentos = await _context.Medicamentos
-                .Include(m => m.Desconto)
                 .Include(m => m.Industria)
                 .Include(m => m.Estoque)
                     .ThenInclude(e => e.Filial)
@@ -37,7 +36,6 @@ namespace WebApplication2.Controllers
         public async Task<ActionResult<ReadMedicamentoDto>> GetMedicamento(long id)
         {
             var medicamento = await _context.Medicamentos
-                .Include(m => m.Desconto)
                 .Include(m => m.Industria)
                 .Include(m => m.Estoque)
                     .ThenInclude(e => e.Filial)
@@ -58,25 +56,13 @@ namespace WebApplication2.Controllers
             if (!industriaExists || !estoqueExists)
                 return BadRequest("Industria ou Estoque inválido.");
 
+            dto.PrincipioAtivo = dto.PrincipioAtivo?.ToUpper();
+
             var medicamento = _mapper.Map<Medicamento>(dto);
             _context.Medicamentos.Add(medicamento);
             await _context.SaveChangesAsync();
 
-            // Cria desconto com base no medicamento
-            var desconto = new Desconto
-            {
-                MedicamentoId = medicamento.Id,
-                PrincipioAtivo = medicamento.PrincipioAtivo,
-                Promocao = dto.Promocao,
-                ValorDesconto = dto.ValorDesconto ?? 0
-            };
-            _context.Descontos.Add(desconto);
-            await _context.SaveChangesAsync();
-
             var readDto = _mapper.Map<ReadMedicamentoDto>(medicamento);
-            readDto.ValorDesconto = desconto.ValorDesconto;
-            readDto.Promocao = desconto.Promocao;
-
             return CreatedAtAction(nameof(GetMedicamento), new { id = medicamento.Id }, readDto);
         }
 
@@ -85,21 +71,14 @@ namespace WebApplication2.Controllers
         public async Task<IActionResult> PutMedicamento(long id, UpdateMedicamentoDto dto)
         {
             var medicamento = await _context.Medicamentos
-                .Include(m => m.Desconto)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (medicamento == null)
                 return NotFound();
 
-            _mapper.Map(dto, medicamento);
+            dto.PrincipioAtivo = dto.PrincipioAtivo?.ToUpper();
 
-            // Atualizar desconto
-            if (medicamento.Desconto != null)
-            {
-                medicamento.Desconto.ValorDesconto = dto.ValorDesconto ?? medicamento.Desconto.ValorDesconto;
-                medicamento.Desconto.Promocao = dto.Promocao;
-                medicamento.Desconto.PrincipioAtivo = medicamento.PrincipioAtivo;
-            }
+            _mapper.Map(dto, medicamento);
 
             try
             {
@@ -115,7 +94,6 @@ namespace WebApplication2.Controllers
 
             return NoContent();
         }
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMedicamento(long id)
@@ -137,7 +115,6 @@ namespace WebApplication2.Controllers
             var query = _context.Medicamentos
                 .Include(m => m.Industria)
                 .Include(m => m.Estoque).ThenInclude(e => e.Filial)
-                .Include(m => m.Desconto)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(principioAtivo))
@@ -157,7 +134,6 @@ namespace WebApplication2.Controllers
             var query = _context.Medicamentos
                 .Include(m => m.Industria)
                 .Include(m => m.Estoque).ThenInclude(e => e.Filial)
-                .Include(m => m.Desconto)
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(termo))
