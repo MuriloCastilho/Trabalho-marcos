@@ -23,37 +23,30 @@ namespace WebApplication2.Controllers
         [HttpPost("realizar-venda")]
         public async Task<IActionResult> RealizarVenda([FromBody] RealizarVendaDto dto)
         {
-            // Verifica se o medicamento existe e inclui estoque e desconto
             var medicamento = await _context.Medicamentos
-                .Include(m => m.Estoque)
-                .Include(m => m.Desconto)
-                .FirstOrDefaultAsync(m => m.Id == dto.MedicamentoId);
+        .Include(m => m.Estoque)
+        .Include(m => m.Desconto)
+        .FirstOrDefaultAsync(m => m.Id == dto.MedicamentoId);
 
             if (medicamento == null)
                 return BadRequest("Medicamento não encontrado.");
 
-            // Verifica se o cliente existe
             var cliente = await _context.Clientes.FindAsync(dto.ClienteId);
             if (cliente == null)
                 return BadRequest("Cliente não encontrado.");
 
-            // Verifica e converte a quantidade disponível no estoque
             if (!int.TryParse(medicamento.Quantidade, out int quantidadeAtual))
                 return BadRequest("Quantidade atual do medicamento inválida.");
 
-            // Verifica se a quantidade vendida é válida
             if (dto.QuantidadeVendida <= 0)
                 return BadRequest("Quantidade vendida deve ser maior que zero.");
 
-            // Verifica se há estoque suficiente
             if (dto.QuantidadeVendida > quantidadeAtual)
                 return BadRequest($"Estoque insuficiente. Quantidade disponível: {quantidadeAtual}");
 
-            // Atualiza a quantidade no estoque
             int novaQuantidade = quantidadeAtual - dto.QuantidadeVendida;
             medicamento.Quantidade = novaQuantidade.ToString();
 
-            // Calcula o preço com desconto (se houver)
             float precoUnitario = medicamento.Preco;
             float descontoAplicado = 0;
 
@@ -61,14 +54,11 @@ namespace WebApplication2.Controllers
             {
                 descontoAplicado = medicamento.Desconto.ValorDesconto;
                 precoUnitario -= descontoAplicado;
-
-                if (precoUnitario < 0)
-                    precoUnitario = 0;
+                if (precoUnitario < 0) precoUnitario = 0;
             }
 
             float valorTotal = precoUnitario * dto.QuantidadeVendida;
 
-            // Cria a venda
             var venda = new Venda
             {
                 NomeProduto = medicamento.Nome,
@@ -80,8 +70,15 @@ namespace WebApplication2.Controllers
                 FuncionarioId = dto.FuncionarioId
             };
 
-            // Salva no banco
             _context.Vendas.Add(venda);
+
+            var historico = new WebApplication4.Entities.HistoricoVenda
+            {
+                VendaId = venda.Id,
+                FuncionarioId = dto.FuncionarioId
+            };
+            _context.HistoricoVendas.Add(historico);
+
             await _context.SaveChangesAsync();
 
             var readVenda = _mapper.Map<ReadVendaDto>(venda);
@@ -107,6 +104,6 @@ namespace WebApplication2.Controllers
         public long MedicamentoId { get; set; }
         public int QuantidadeVendida { get; set; }
         public int TipoPagamento { get; set; }
-        public long FuncionarioId { get; set; } // opcional
+        public long FuncionarioId { get; set; }
     }
 }
