@@ -5,9 +5,6 @@ namespace WebApplication4.Dtos.Medicamento
     public class UpdateMedicamentoDto
     {
         [Required]
-        public long Id { get; set; }
-
-        [Required]
         [StringLength(100)]
         public string PrincipioAtivo { get; set; } = string.Empty;
 

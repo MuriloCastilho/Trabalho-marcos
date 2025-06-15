@@ -72,6 +72,8 @@ namespace WebApplication2.Controllers
 
             _context.Vendas.Add(venda);
 
+            await _context.SaveChangesAsync();
+
             var historico = new WebApplication4.Entities.HistoricoVenda
             {
                 VendaId = venda.Id,

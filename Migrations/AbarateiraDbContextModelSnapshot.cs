@@ -275,8 +275,6 @@ namespace WebApplication4.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("PrincipioAtivo");
-
                     b.HasIndex("EstoqueId");
 
                     b.HasIndex("IndustriaId");
