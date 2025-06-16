@@ -29,9 +29,5 @@ namespace WebApplication4.Dtos.Medicamento
 
         [Required]
         public long EstoqueId { get; set; }
-
-        public float? ValorDesconto { get; set; } = 0;
-        public bool Promocao { get; set; } = false;
-
     }
 }

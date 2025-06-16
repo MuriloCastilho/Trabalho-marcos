@@ -50,11 +50,18 @@ namespace WebApplication2.Controllers
             float precoUnitario = medicamento.Preco;
             float descontoAplicado = 0;
 
-            if (medicamento.Desconto != null && medicamento.Desconto.Promocao)
+            var descontoInfo = await _context.Descontos
+                .Where(d => d.MedicamentoId == medicamento.Id)
+                .Select(d => new { d.Promocao, d.ValorDesconto })
+                .FirstOrDefaultAsync();
+
+            if (descontoInfo != null && descontoInfo.Promocao)
             {
-                descontoAplicado = medicamento.Desconto.ValorDesconto;
+                descontoAplicado = precoUnitario * (descontoInfo.ValorDesconto / 100f);
                 precoUnitario -= descontoAplicado;
-                if (precoUnitario < 0) precoUnitario = 0;
+
+                if (precoUnitario < 0)
+                    precoUnitario = 0;
             }
 
             float valorTotal = precoUnitario * dto.QuantidadeVendida;

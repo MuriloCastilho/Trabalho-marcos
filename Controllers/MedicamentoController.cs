@@ -38,13 +38,24 @@ namespace WebApplication2.Controllers
             var medicamento = await _context.Medicamentos
                 .Include(m => m.Industria)
                 .Include(m => m.Estoque)
-                    .ThenInclude(e => e.Filial)
+                .ThenInclude(e => e.Filial)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
             if (medicamento == null)
                 return NotFound();
 
-            return Ok(_mapper.Map<ReadMedicamentoDto>(medicamento));
+
+            var desconto = await _context.Descontos
+                .Where(d => d.MedicamentoId == id && d.Promocao)
+                .Select(d => d.ValorDesconto)
+                .FirstOrDefaultAsync();
+
+            var dto = _mapper.Map<ReadMedicamentoDto>(medicamento);
+
+            if (desconto > 0)
+                dto.ValorDescontoCalculado = (float?)Math.Round(medicamento.Preco * (desconto / 100f), 2);
+
+            return Ok(dto);
         }
 
         [HttpPost]

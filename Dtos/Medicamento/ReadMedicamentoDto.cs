@@ -24,8 +24,7 @@
 
         public string? NomeFilial { get; set; }
 
-        public float? ValorDesconto { get; set; }
-        public bool Promocao { get; set; }
+        public float? ValorDescontoCalculado { get; set; }
 
     }
 }
