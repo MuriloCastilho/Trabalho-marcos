@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication2.Data;
 using WebApplication4.Dtos.Venda;
 using WebApplication4.Utils.Enums;
-using AutoMapper;
 
 namespace WebApplication2.Controllers
 {
@@ -34,6 +35,10 @@ namespace WebApplication2.Controllers
             var cliente = await _context.Clientes.FindAsync(dto.ClienteId);
             if (cliente == null)
                 return BadRequest("Cliente não encontrado.");
+
+            var funcionario = await _context.Funcionarios.FindAsync(dto.FuncionarioId);
+            if (funcionario == null)
+                return BadRequest("Funcionário não encontrado.");
 
             if (!int.TryParse(medicamento.Quantidade, out int quantidadeAtual))
                 return BadRequest("Quantidade atual do medicamento inválida.");
@@ -78,6 +83,9 @@ namespace WebApplication2.Controllers
             };
 
             _context.Vendas.Add(venda);
+
+            float comissao = valorTotal * 0.10f;
+            funcionario.Comissao = (funcionario.Comissao ?? 0) + comissao;
 
             await _context.SaveChangesAsync();
 
