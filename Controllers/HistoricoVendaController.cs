@@ -112,5 +112,33 @@ namespace WebApplication2.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("completo/{id}")]
+        public async Task<ActionResult<IEnumerable<HistoricoCompletoDto>>> GetHistoricoCompleto(long id)
+        {
+            var historico = await _context.HistoricoVendas
+            .Include(h => h.Venda)
+                .ThenInclude(v => v.Medicamento)
+            .Include(h => h.Venda)
+                .ThenInclude(v => v.Cliente)
+            .Include(h => h.Funcionario)
+            .FirstOrDefaultAsync(h => h.Id == id);
+
+            if (historico == null)
+                return NotFound("Histórico de venda não encontrado.");
+
+            var result = new HistoricoCompletoDto
+            {
+                VendaId = historico.VendaId,
+                DataVenda = historico.Venda.Data,
+                ValorTotal = historico.Venda.ValorTotal,
+                NomeMedicamento = historico.Venda.Medicamento.Nome,
+                PrincipioAtivo = historico.Venda.Medicamento.PrincipioAtivo,
+                CPFCliente = historico.Venda.Cliente.CPF,
+                NomeFuncionario = historico.Funcionario.Nome
+            };
+
+            return Ok(result);
+        }
     }
 }
